@@ -219,6 +219,7 @@ delete(MetaDBId, StorageInfo, Object) ->
 head(MetaDBId, Key) ->
     case catch leo_backend_db_api:get(MetaDBId, Key) of
         {ok, MetadataBin} ->
+            statsd:leo_increment("haystack.ok_metabin"),
             case leo_object_storage_transformer:transform_metadata(
                    binary_to_term(MetadataBin)) of
                 {error, Cause} ->
@@ -227,8 +228,10 @@ head(MetaDBId, Key) ->
                     {ok, term_to_binary(Metadata)}
             end;
         not_found = Cause ->
+            statsd:leo_increment("haystack.not_found"),
             Cause;
         {_, Cause} ->
+            statsd:leo_increment("haystack.other_err"),
             {error, Cause}
     end.
 

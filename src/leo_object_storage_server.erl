@@ -447,6 +447,7 @@ handle_call({head, {AddrId, Key}},
                           object_storage = StorageInfo} = State) ->
     BackendKey = ?gen_backend_key(StorageInfo#backend_info.avs_ver_cur,
                                   AddrId, Key),
+    statsd:leo_increment("storserver.call_haystack_head"),
     Reply = leo_object_storage_haystack:head(MetaDBId, BackendKey),
     {reply, Reply, State};
 

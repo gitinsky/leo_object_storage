@@ -517,8 +517,10 @@ do_request(head, [{AddrId, Key}]) ->
     KeyBin = term_to_binary({AddrId, Key}),
     case get_object_storage_pid(KeyBin) of
         [Pid|_] ->
+            statsd:leo_increment("objstorage.pid_found"),
             ?SERVER_MODULE:head(Pid, {AddrId, Key});
         _ ->
+            statsd:leo_increment("objstorage.pid_not_found"),
             {error, ?ERROR_PROCESS_NOT_FOUND}
     end;
 do_request(head_with_calc_md5, [{AddrId, Key}, MD5Context]) ->
