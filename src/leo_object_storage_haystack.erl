@@ -223,8 +223,10 @@ head(MetaDBId, Key) ->
             case leo_object_storage_transformer:transform_metadata(
                    binary_to_term(MetadataBin)) of
                 {error, Cause} ->
+                    statsd:leo_increment("haystack.err_binary_to_term"),
                     {error, Cause};
                 Metadata->
+                    statsd:leo_increment("haystack.ok_binary_to_term"),
                     {ok, term_to_binary(Metadata)}
             end;
         not_found = Cause ->
